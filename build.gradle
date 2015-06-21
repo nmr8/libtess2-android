@@ -1,0 +1,27 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.1.1'
+    }
+}
+
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 17
+    buildToolsVersion = "20.0.0"
+
+    defaultConfig {
+        versionCode 1
+        versionName "1.0"
+
+        ndk {
+            moduleName "tess2"
+            //cFlags "-DANDROID_NDK -D_DEBUG DNULL=0"
+            ldLibs "log" // "EGL", "GLESv3", "dl",
+            //stl "stlport_shared"
+        }
+    }
+}

@@ -1,0 +1,3 @@
+[submodule "libtess2"]
+	path = libtess2
+	url = git@github.com:nmr8/libtess2.git
