@@ -89,11 +89,17 @@ JNIEXPORT jintArray JNICALL Java_nmr_libtess2_1android_libtess2_tessGetElements(
     TESStesselator *tessp = getTessp(env, tess);
     const int* elements = tessGetElements(tessp);
     int elementCount = tessGetElementCount(tessp);
-
-    // xxx this is wrong for TESS_BOUNDARY_CONTOURS, need to find out how that output is formatted
-    int resultSize = elementCount * getTessOutputPolygonSize(env, tess);
+    int resultSize = elementCount;
     int tessOet = getTessOutputElementType(env, tess);
-    resultSize *= tessOet == TESS_CONNECTED_POLYGONS ? 2 : 1;
+
+    if (tessOet == TESS_CONNECTED_POLYGONS) {
+        resultSize *= getTessOutputPolygonSize(env, tess);
+        resultSize *= 2;
+    } else if (tessOet == TESS_BOUNDARY_CONTOURS) {
+        resultSize *= 2;
+    } else if (tessOet == TESS_POLYGONS) {
+        resultSize *= getTessOutputPolygonSize(env, tess);
+    }
 
     jintArray result = (*env)->NewIntArray(env, resultSize);
     (*env)->SetIntArrayRegion(env, result, 0, resultSize, elements);

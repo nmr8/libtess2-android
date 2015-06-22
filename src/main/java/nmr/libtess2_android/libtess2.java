@@ -45,6 +45,9 @@ public class libtess2 {
 
     public static final class TESStesselator {
         private final long nativePointer;
+
+        // these track output format passed to tessTesselate needed to compute proper size of output
+        // when fetched with tessGet*
         private int outputElementType;
         private int outputPolySize;
         private int outputVertexSize;
@@ -87,22 +90,21 @@ public class libtess2 {
      * @param tess tesselator state
      * @param outputElementType the type of output elements to compute
      * @param outputPolySize size in vertices an output polygon should be
-     * @param vertexSize number of coordinates per output vertex, must be 2 or 3 (xxx must match vertexSize in addContour?)
+     * @param outputVertexSize number of coordinates per output vertex, must be 2 or 3 (xxx must match vertexSize in addContour?)
      * @param normals defines the normal of the input contours, or null and the normals will be calculated.
      * @return 0 on failure
      */
     public static int tessTesselate(TESStesselator tess, TessWindingRule windingRule, TessElementType outputElementType,
-                                    int outputPolySize, int vertexSize, float[] normals) {
+                                    int outputPolySize, int outputVertexSize, float[] normals) {
         tess.outputElementType = outputElementType.ordinal();
         tess.outputPolySize = outputPolySize;
-        tess.outputVertexSize = vertexSize;
-        // xxx test vertex size
+        tess.outputVertexSize = outputVertexSize;
 
-        if (outputElementType == TessElementType.TESS_BOUNDARY_CONTOURS) {
-            // xxx see C code
-            throw new UnsupportedOperationException();
-        }
-        return tessTesselate(tess, windingRule.ordinal(), outputElementType.ordinal(), outputPolySize, vertexSize,
+        //if (outputElementType == TessElementType.TESS_BOUNDARY_CONTOURS) {
+        //    // xxx see C code
+        //    throw new UnsupportedOperationException();
+        //}
+        return tessTesselate(tess, windingRule.ordinal(), outputElementType.ordinal(), outputPolySize, outputVertexSize,
                 normals);
     }
 
