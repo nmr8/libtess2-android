@@ -19,16 +19,18 @@ static TESStesselator * getTessp(JNIEnv *env, jobject tess) {
 
 JNIEXPORT void JNICALL Java_nmr_libtess2_1android_libtess2_tessAddContour
   (JNIEnv *env, jclass cls, jobject tess, jint size, jfloatArray contour, jint stride, jint count, jint offset) {
+    TESStesselator *tessp = getTessp(env, tess);
     float *contour_ = (*env)->GetPrimitiveArrayCritical(env, contour, 0);
-    tessAddContour(getTessp(env, tess), size, contour_, stride, count);
+    tessAddContour(tessp, size, contour_, stride, count);
     (*env)->ReleasePrimitiveArrayCritical(env, contour, contour_, 0);
 }
 
 JNIEXPORT jint JNICALL Java_nmr_libtess2_1android_libtess2_tessTesselate
   (JNIEnv *env, jclass cls, jobject tess, jint windingRule, jint elementType, jint polySize, jint vertexSize,
   jfloatArray normals) {
+    TESStesselator *tessp = getTessp(env, tess);
     float *normals_ = normals == NULL ? NULL : (*env)->GetPrimitiveArrayCritical(env, normals, 0);
-    int result = tessTesselate(getTessp(env, tess), windingRule, elementType, polySize, vertexSize, normals_);
+    int result = tessTesselate(tessp, windingRule, elementType, polySize, vertexSize, normals_);
     (*env)->ReleasePrimitiveArrayCritical(env, normals, normals_, 0);
     return result;
 }
