@@ -31,7 +31,9 @@ JNIEXPORT jint JNICALL Java_nmr_libtess2_1android_libtess2_tessTesselate
     TESStesselator *tessp = getTessp(env, tess);
     float *normals_ = normals == NULL ? NULL : (*env)->GetPrimitiveArrayCritical(env, normals, 0);
     int result = tessTesselate(tessp, windingRule, elementType, polySize, vertexSize, normals_);
-    (*env)->ReleasePrimitiveArrayCritical(env, normals, normals_, 0);
+    if (normals_ != NULL) {
+        (*env)->ReleasePrimitiveArrayCritical(env, normals, normals_, 0);
+    }
     return result;
 }
 
