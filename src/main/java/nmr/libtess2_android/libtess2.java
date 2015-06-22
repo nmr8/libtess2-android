@@ -47,6 +47,7 @@ public class libtess2 {
         private final long nativePointer;
         private int outputElementType;
         private int outputPolySize;
+        private int outputVertexSize;
 
         private TESStesselator(long nativePointer) {
             this.nativePointer = nativePointer;
@@ -94,6 +95,7 @@ public class libtess2 {
                                     int outputPolySize, int vertexSize, float[] normal) {
         tess.outputElementType = outputElementType.ordinal();
         tess.outputPolySize = outputPolySize;
+        tess.outputVertexSize = vertexSize;
         // xxx test vertex size
 
         if (outputElementType == TessElementType.TESS_BOUNDARY_CONTOURS) {
