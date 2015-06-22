@@ -45,6 +45,8 @@ public class libtess2 {
 
     public static final class TESStesselator {
         private final long nativePointer;
+        private int outputElementType;
+        private int outputPolySize;
 
         private TESStesselator(long nativePointer) {
             this.nativePointer = nativePointer;
@@ -90,11 +92,19 @@ public class libtess2 {
      */
     public static int tessTesselate(TESStesselator tess, TessWindingRule windingRule, TessElementType outputElementType,
                                     int outputPolySize, int vertexSize, float[] normal) {
+        tess.outputElementType = outputElementType.ordinal();
+        tess.outputPolySize = outputPolySize;
+        // xxx test vertex size
+
+        if (outputElementType == TessElementType.TESS_BOUNDARY_CONTOURS) {
+            // xxx see C code
+            throw new UnsupportedOperationException();
+        }
         return tessTesselate(tess, windingRule.ordinal(), outputElementType.ordinal(), outputPolySize, vertexSize, normal);
     }
 
-    public static native int tessTesselate(TESStesselator tess, int windingRule, int elementType,
-                                           int polySize, int vertexSize, float[] normal);
+    private static native int tessTesselate(TESStesselator tess, int windingRule, int elementType,
+                                            int polySize, int vertexSize, float[] normal);
 
     public static native int tessGetVertexCount(TESStesselator tess);
 

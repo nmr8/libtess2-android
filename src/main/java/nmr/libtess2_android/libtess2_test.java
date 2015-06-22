@@ -20,7 +20,12 @@ public class libtess2_test {
         int[] vertexIndices = libtess2.tessGetVertexIndices(tess);
         float[] vertices = libtess2.tessGetVertices(tess);
 
-        Log.d(TAG, elementCount + " " + Arrays.toString(elements) + " " + vertexCount + " " +
-                Arrays.toString(vertexIndices) + " " + Arrays.toString(vertices));
+        String result = elementCount + " " + Arrays.toString(elements) + " " + vertexCount + " " +
+                Arrays.toString(vertexIndices) + " " + Arrays.toString(vertices);
+        Log.d(TAG, result);
+
+        if (!"".equals(result)) {
+            throw new Error();
+        }
     }
 }

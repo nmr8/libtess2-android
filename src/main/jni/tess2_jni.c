@@ -3,18 +3,36 @@
 #include <stddef.h>
 #include <stdint.h>
 
-JNIEXPORT jlong JNICALL Java_nmr_libtess2_1android_libtess2__1tessNewTess(JNIEnv *env, jclass cls) {
-    return (jlong) (uintptr_t) tessNewTess(NULL);
+static int getTessOutputElementType(JNIEnv *env, jobject tess) {
+    jclass tessCls = (*env)->GetObjectClass(env, tess);
+    jfieldID oetId = (*env)->GetFieldID(env, tessCls, "outputElementType", "I");
+    return (*env)->GetIntField(env, tess, oetId);
 }
 
-JNIEXPORT void JNICALL Java_nmr_libtess2_1android_libtess2__1tessDeleteTess(JNIEnv *env, jclass cls, jlong tess) {
-    tessDeleteTess((TESStesselator *) (uintptr_t) tess);
+static int getTessOutputPolygonSize(JNIEnv *env, jobject tess) {
+    jclass tessCls = (*env)->GetObjectClass(env, tess);
+    jfieldID opsId = (*env)->GetFieldID(env, tessCls, "outputPolySize", "I");
+    return (*env)->GetIntField(env, tess, opsId);
+}
+
+static int getTessOutputVertexSize(JNIEnv *env, jobject tess) {
+    jclass tessCls = (*env)->GetObjectClass(env, tess);
+    jfieldID ovsId = (*env)->GetFieldID(env, tessCls, "outputVertexSize", "I");
+    return (*env)->GetIntField(env, tess, ovsId);
 }
 
 static TESStesselator * getTessp(JNIEnv *env, jobject tess) {
     jclass tessCls = (*env)->GetObjectClass(env, tess);
     jfieldID ptrId = (*env)->GetFieldID(env, tessCls, "nativePointer", "J");
     return (TESStesselator *) (uintptr_t) (*env)->GetLongField(env, tess, ptrId);
+}
+
+JNIEXPORT jlong JNICALL Java_nmr_libtess2_1android_libtess2__1tessNewTess(JNIEnv *env, jclass cls) {
+    return (jlong) (uintptr_t) tessNewTess(NULL);
+}
+
+JNIEXPORT void JNICALL Java_nmr_libtess2_1android_libtess2__1tessDeleteTess(JNIEnv *env, jclass cls, jlong tess) {
+    tessDeleteTess((TESStesselator *) (uintptr_t) tess);
 }
 
 JNIEXPORT void JNICALL Java_nmr_libtess2_1android_libtess2_tessAddContour
@@ -46,8 +64,10 @@ JNIEXPORT jfloatArray JNICALL Java_nmr_libtess2_1android_libtess2_tessGetVertice
     TESStesselator *tessp = getTessp(env, tess);
     const float* vertices = tessGetVertices(tessp);
     int vertexCount = tessGetVertexCount(tessp);
-    jfloatArray result = (*env)->NewFloatArray(env, vertexCount);
-    (*env)->SetFloatArrayRegion(env, result, 0, vertexCount, vertices);
+    int resultSize = vertexCount * getTessOutputVertexSize(env, tess);
+
+    jfloatArray result = (*env)->NewFloatArray(env, resultSize);
+    (*env)->SetFloatArrayRegion(env, result, 0, resultSize, vertices);
     return result;
 }
 
@@ -69,7 +89,13 @@ JNIEXPORT jintArray JNICALL Java_nmr_libtess2_1android_libtess2_tessGetElements(
     TESStesselator *tessp = getTessp(env, tess);
     const int* elements = tessGetElements(tessp);
     int elementCount = tessGetElementCount(tessp);
-    jintArray result = (*env)->NewIntArray(env, elementCount);
-    (*env)->SetIntArrayRegion(env, result, 0, elementCount, elements);
+
+    // xxx this is wrong for TESS_BOUNDARY_CONTOURS, need to find out how that output is formatted
+    int resultSize = elementCount * getTessOutputPolygonSize(env, tess);
+    int tessOet = getTessOutputElementType(env, tess);
+    resultSize *= tessOet == TESS_CONNECTED_POLYGONS ? 2 : 1;
+
+    jintArray result = (*env)->NewIntArray(env, resultSize);
+    (*env)->SetIntArrayRegion(env, result, 0, resultSize, elements);
     return result;
 }
