@@ -10,7 +10,8 @@ public class libtess2_test {
 
     public static void test() {
         TESStesselator tess = libtess2.tessNewTess();
-        libtess2.tessAddContour(tess, 4, new float[]{0,0, 0,1, 1,1, 1,0}, 8, 4, 0);
+        //libtess2.tessAddContour(tess, 3, new float[]{0,0,0, 0,1,0, 1,1,0, 1,0,0}, 12, 4, 0);
+        libtess2.tessAddContour(tess, 2, new float[]{0,0, 0,1, 1,1, 1,0}, 8, 4, 0);
         libtess2.tessTesselate(tess, libtess2.TessWindingRule.TESS_WINDING_ODD, libtess2.TessElementType.TESS_POLYGONS,
                 3, 2, null);
 
@@ -22,9 +23,9 @@ public class libtess2_test {
 
         String result = elementCount + " " + Arrays.toString(elements) + " " + vertexCount + " " +
                 Arrays.toString(vertexIndices) + " " + Arrays.toString(vertices);
-        Log.d(TAG, result);
 
-        if (!"2 [0, 1, 2, 1, 0, 3] 4 [3, 1, 2, 0] [1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0]".equals(result)) {
+        // 2 [0, 1, 2, 1, 0, 3] 4 [0, 2, 3, 1] [0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0]
+        if (!"2 [0, 1, 2, 1, 0, 3] 4 [0, 2, 3, 1] [0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1.0]".equals(result)) {
             throw new Error();
         }
     }

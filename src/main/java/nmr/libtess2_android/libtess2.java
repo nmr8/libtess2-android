@@ -74,25 +74,25 @@ public class libtess2 {
 
     /**
      * @param tess tesselator state
-     * @param size number of coordinates per vertex. Must be 2 or 3.
-     * @param contour packed contour vertex data
-     * @param stride in bytes between vertices
-     * @param count number of vertices
-     * @param offset unused
+     * @param coordsPerVertex number of coordinates per vertex, must be 2 or 3
+     * @param contour contour vertex data
+     * @param strideBytes bytes between vertices
+     * @param countVertices number of vertices
+     * @param unused unused
      */
-    public static native void tessAddContour(TESStesselator tess, int size, float[] contour, int stride, int count,
-                                             int offset); // xxx offset is unimplemented
+    public static native void tessAddContour(TESStesselator tess, int coordsPerVertex, float[] contour, int strideBytes,
+                                             int countVertices, int unused);
 
     /**
      * @param tess tesselator state
      * @param outputElementType the type of output elements to compute
      * @param outputPolySize size in vertices an output polygon should be
-     * @param vertexSize number of coordinates per vertex, must be 2 or 3 xxx input (normals) or output?
-     * @param normal defines the normal of the input contours, or null and the normals will be calculated.
+     * @param vertexSize number of coordinates per output vertex, must be 2 or 3 (xxx must match vertexSize in addContour?)
+     * @param normals defines the normal of the input contours, or null and the normals will be calculated.
      * @return 0 on failure
      */
     public static int tessTesselate(TESStesselator tess, TessWindingRule windingRule, TessElementType outputElementType,
-                                    int outputPolySize, int vertexSize, float[] normal) {
+                                    int outputPolySize, int vertexSize, float[] normals) {
         tess.outputElementType = outputElementType.ordinal();
         tess.outputPolySize = outputPolySize;
         tess.outputVertexSize = vertexSize;
@@ -102,7 +102,8 @@ public class libtess2 {
             // xxx see C code
             throw new UnsupportedOperationException();
         }
-        return tessTesselate(tess, windingRule.ordinal(), outputElementType.ordinal(), outputPolySize, vertexSize, normal);
+        return tessTesselate(tess, windingRule.ordinal(), outputElementType.ordinal(), outputPolySize, vertexSize,
+                normals);
     }
 
     private static native int tessTesselate(TESStesselator tess, int windingRule, int elementType,
@@ -112,9 +113,20 @@ public class libtess2 {
 
     public static native float[] tessGetVertices(TESStesselator tess);
 
+    /**
+     * For each output vertex, the index of the input vertex, or TESS_UNDEF if the output vertex is not an input vertex
+     * (Input vertices are indexed sequentially as they are loaded into tesselator state.)
+     */
     public static native int[] tessGetVertexIndices(TESStesselator tess);
 
+    /**
+     * Number of output elements (which are either polygons, polygons with connection information, or ... boundary
+     * vertices?)
+     */
     public static native int tessGetElementCount(TESStesselator tess);
 
+    /**
+     * Elements are sequences of vertex indices, in the format given by the TessElementType arg to tessTesselate
+     */
     public static native int[] tessGetElements(TESStesselator tess);
 }
